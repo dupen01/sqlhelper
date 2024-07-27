@@ -89,8 +89,90 @@ class SqlHelper:
     @staticmethod
     def trim_comment(sql: str) -> str:
         """删除注释"""
+        # 1. 删除单行注释
+        sql = SqlHelper.trim_single_line_comment(sql=sql)
+
+        # 2. 将多行SQL转为单行SQL
+        sql = '\\n'.join(sql.splitlines())
+
+        # 3. 删除多行注释
+        index = 0
+        # 嵌套注释的层级数
+        multi_comment_level = 0
+        # 标记是否以双引号结尾
+        has_terminated_double_quote = True
+        # 标记是否以单引号结尾
+        has_terminated_single_quote = True
+        # 标记前一个字符是否是斜杆 "/"
+        was_pre_slash = False
+        # 标记前一个字符是否是星号 "*"
+        was_pre_star = False
+        # 标记是否是SQL Hint
+        is_hint = False
+        comment_start_index = 0
+        comment_end_index = 0
+        comment_index_list = []
+        for char in sql:
+            index += 1
+            print(index, char, multi_comment_level)
+            match char:
+                case "'":
+                    if has_terminated_double_quote:
+                        has_terminated_single_quote = not has_terminated_single_quote
+                case '"':
+                    if has_terminated_single_quote:
+                        has_terminated_double_quote = not has_terminated_double_quote
+                
+                case '/':
+                    if has_terminated_double_quote and has_terminated_single_quote:
+                        # 如果'/'前面是'*'， 那么嵌套层级数-1
+                        if was_pre_star:
+                            if not is_hint:
+                                multi_comment_level -= 1
+                                if multi_comment_level == 0:
+                                    comment_end_index = index
+                                    comment_index_list.append((comment_start_index, comment_end_index))
+                            else:
+                                is_hint = False
+                    was_pre_slash = True
+                    was_pre_star = False
+                case '*':
+                    if has_terminated_double_quote and has_terminated_single_quote:
+                        # 如果'*'前面是'/'， 那么嵌套层级数+1
+                        if was_pre_slash:
+                            multi_comment_level += 1
+                            # 记录层级为1的开始索引
+                            if multi_comment_level == 1:
+                                comment_start_index = index - 2
+                    was_pre_star = True
+                    was_pre_slash = False
+                case '+':
+                    if has_terminated_double_quote and has_terminated_single_quote:
+                        if was_pre_star and multi_comment_level == 1:
+                            is_hint = True
+                            multi_comment_level = 0
+                    was_pre_star = False
+                    was_pre_slash = False
+                case _:
+                    was_pre_slash = False
+                    was_pre_star = False
+        lenth_list = []
+        for start, end in comment_index_list:
+            lenth = end - start
+            lenth_list.append(lenth)
+            sql = sql.replace(sql[start:end], 'T'*lenth)
+        for lenth in lenth_list:
+            sql = sql.replace('T'*lenth, '')
+
+        # 4. 单行SQL转为多行
+        sql = sql.replace('\\n', '\n')
+        return sql
+    
+
+    @staticmethod
+    def trim_single_line_comment(sql: str) -> str:
+        """删除单行注释"""
         result = []
-        sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.M | re.S)
         for line in sql.splitlines():
             line = line if not line.strip().startswith('--') else ''
             # 标记是否以双引号结尾
