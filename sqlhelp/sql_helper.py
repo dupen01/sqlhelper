@@ -1,6 +1,5 @@
 from typing import List
 from keywords import KeyWords
-import re 
 
 
 class ParseException(Exception):
@@ -10,7 +9,7 @@ class ParseException(Exception):
 class SqlHelper:
     @staticmethod
     def split(sql: str) -> List[str]:
-        """将多条SQL分隔为列表"""
+        """将多条SQL以 `;` 作为分隔符进行划分，返回列表"""
         result = []
         # 嵌套注释的层级数
         multi_comment_level = 0
@@ -114,7 +113,6 @@ class SqlHelper:
         comment_index_list = []
         for char in sql:
             index += 1
-            print(index, char, multi_comment_level)
             match char:
                 case "'":
                     if has_terminated_double_quote:
