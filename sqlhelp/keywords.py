@@ -45,7 +45,8 @@ class KeyWords:
         'EXISTS',
         'EXTERNAL',
         'WITH',
-        'DATABASE'
+        'DATABASE',
+        'TEMPORARY'
     ]
 
     insert_keywords = [

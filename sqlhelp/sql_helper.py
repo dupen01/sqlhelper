@@ -82,6 +82,8 @@ class SqlHelper:
                 prefix += line[last_semi_index:]
         assert multi_comment_level == 0, (f"The number of nested levels of sql multi-line comments is not equal to 0: "
                                           f"{multi_comment_level}")
+        if '' in result:
+            result.remove('')
         return result
 
 
@@ -120,7 +122,6 @@ class SqlHelper:
                 case '"':
                     if has_terminated_single_quote:
                         has_terminated_double_quote = not has_terminated_double_quote
-                
                 case '/':
                     if has_terminated_double_quote and has_terminated_single_quote:
                         # 如果'/'前面是'*'， 那么嵌套层级数-1
@@ -154,14 +155,8 @@ class SqlHelper:
                 case _:
                     was_pre_slash = False
                     was_pre_star = False
-        lenth_list = []
-        for start, end in comment_index_list:
-            lenth = end - start
-            lenth_list.append(lenth)
-            sql = sql.replace(sql[start:end], 'T'*lenth)
-        for lenth in lenth_list:
-            sql = sql.replace('T'*lenth, '')
-
+        for start, end in reversed(comment_index_list):
+            sql = sql[:start] + sql[end:]
         # 4. 单行SQL转为多行
         sql = sql.replace('\\n', '\n')
         return sql

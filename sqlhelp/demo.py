@@ -22,3 +22,11 @@ sql = SqlHelper.trim_comment(sql)
 
 
 print(sql)
+
+
+sql2 = """
+create database if exists ods;
+-- as select * from bbb
+"""
+print(SqlHelper.split(sql2))
+print(SqlHelper.get_source_target_tables(sql2))
