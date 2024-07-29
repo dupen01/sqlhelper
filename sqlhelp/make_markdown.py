@@ -37,4 +37,5 @@ def sql_to_mermaid(total_sql):
 if __name__ == '__main__':
     total_sql = get_sql_from_file('sqlhelp/sql-files/*.sql')
     mermaid_str = sql_to_mermaid(total_sql)
-    print('graph LR\n' + mermaid_str)
+    prefix = "graph LR\n"
+    print(prefix, mermaid_str)

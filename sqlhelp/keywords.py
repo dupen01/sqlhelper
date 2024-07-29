@@ -57,5 +57,4 @@ class KeyWords:
     from_keywords = [
         'FROM',
         'JOIN',
-        # 'AS',
     ]

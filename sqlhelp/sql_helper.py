@@ -251,6 +251,10 @@ class SqlHelper:
         source 表：FROM 和 JOIN 后面的词
         TODO 暂未支持嵌套CTE语句
         """
+
+        # 预处理：去掉多行注释和单行注释
+        sql = SqlHelper.trim_comment(sql)
+
         # 校验SQL参数
         if len(SqlHelper.split(sql)) > 1:
             raise ParseException("sql脚本为多条SQL语句,需传入单条SQL语句.")
@@ -262,9 +266,6 @@ class SqlHelper:
         target_table = ''
         source_table = []
         result = {}
-
-        # 预处理：去掉多行注释和单行注释
-        sql = SqlHelper.trim_comment(sql)
 
         for line in sql.splitlines():
             line = line.strip()
