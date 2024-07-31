@@ -247,8 +247,6 @@ class SqlHelper:
     @staticmethod
     def get_source_target_tables(sql: str) -> dict:
         """传入一个SQL语句，输出这条SQL的来源表和目标表名，可用于表级血缘关系梳理
-        标记 source 表和 target 表：
-        source 表：FROM 和 JOIN 后面的词
         TODO 暂未支持嵌套CTE语句
         """
 
