@@ -1,4 +1,4 @@
-from sqlhelp.dag_graph import DagGraph
+from graph import DagGraph
 
 
 dg = DagGraph()

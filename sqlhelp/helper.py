@@ -167,7 +167,11 @@ class SqlHelper:
         """删除单行注释"""
         result = []
         for line in sql.splitlines():
-            line = line if not line.strip().startswith('--') else ''
+            line = line.strip()
+            line = line if not line.startswith('--') else ''
+            line = line if not line.startswith('#') else ''
+            if len(line) == 0:
+                continue
             # 标记是否以双引号结尾
             has_terminated_double_quote = True
             # 标记是否以单引号结尾
@@ -190,6 +194,10 @@ class SqlHelper:
                                 line = line[:index-2]
                                 continue
                         was_pre_dash = True
+                    case '#':
+                        if has_terminated_double_quote and has_terminated_single_quote:
+                            line = line[:index-1]
+                            continue
                     case _:
                         was_pre_dash = False
             result.append(line)
