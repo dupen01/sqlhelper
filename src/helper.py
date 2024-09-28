@@ -259,7 +259,9 @@ class SqlHelper:
         """
 
         # 预处理：去掉多行注释和单行注释
-        sql = SqlHelper.trim_comment(sql)
+        sql = SqlHelper.trim_comment(sql).strip()
+        # 删除末尾的`;`
+        sql = sql[:-1] if sql.endswith(';') else sql
 
         # 校验SQL参数
         if len(SqlHelper.split(sql)) > 1:
@@ -268,8 +270,10 @@ class SqlHelper:
         was_pre_insert = False
         was_pre_from = False
         was_pre_as = False
+        was_merge = False
+        was_using = False
         was_pre_table_name = False
-        target_table = ''
+        target_table = None
         source_table = []
         result = {}
 
@@ -296,6 +300,14 @@ class SqlHelper:
                     was_pre_from = False
                     continue
 
+                if token.upper() == 'MERGE':
+                    was_merge = True
+                    continue
+
+                if token.upper() == 'USING':
+                    was_using = True
+                    continue
+
                 if token.upper() in KeyWords.from_keywords:
                     was_pre_from = True
                     was_pre_insert = False
@@ -318,6 +330,22 @@ class SqlHelper:
                     was_pre_from = False
                     continue
 
+                # merge into 
+                if was_merge \
+                    and not was_using \
+                    and token.upper() not in KeyWords.keywords \
+                    and target_table is None:
+                    target_table = token
+                    continue
+
+                if was_merge and was_using and token.upper() not in KeyWords.keywords:
+                    if token != '(':
+                        source_table.append(token)
+                        print('source_table:', token)
+                    was_using = False
+                    was_merge = False
+                    continue
+
                 if was_pre_from:
                     if token not in KeyWords.keywords and not was_pre_table_name and token not in (',', '('):
                         source_table.append(token)
@@ -328,6 +356,7 @@ class SqlHelper:
                         was_pre_table_name = False
 
         mid_table = SqlHelper.get_cte_mid_tables(sql)
+        print(source_table)
         source_table = list(set(source_table) - set(mid_table))
         if len(source_table) != 0:
             result.setdefault('target_table', target_table)

@@ -46,12 +46,13 @@ class KeyWords:
         'EXTERNAL',
         'WITH',
         'DATABASE',
-        'TEMPORARY'
+        'TEMPORARY',
+        'MERGE'
     ]
 
     insert_keywords = [
         'INSERT',
-        'CREATE'
+        'CREATE',
     ]
 
     from_keywords = [

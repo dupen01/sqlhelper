@@ -28,10 +28,10 @@ class DagGraph:
 
 
     def add_edge(self, _from, _to) -> None:
-        if _from not in self.__nodes:
-            raise NodeNotFoundException(f"节点不存在:{_from}")
-        if _to not in self.__nodes:
-            raise NodeNotFoundException(f"节点不存在:{_to}")
+        # if _from not in self.__nodes:
+        #     raise NodeNotFoundException(f"节点不存在:{_from}")
+        # if _to not in self.__nodes:
+        #     raise NodeNotFoundException(f"节点不存在:{_to}")
         self.__edges.append((_from, _to))
     
 
@@ -61,7 +61,7 @@ class DagGraph:
         self.__print_mermaid(self.__edges)
 
 
-    def find_related_edges(self, node):
+    def find_related_edges_backward(self, node):
         # 创建一个队列和一个集合来记录已访问过的关系
         from collections import deque
         queue = deque([node])
@@ -81,6 +81,6 @@ class DagGraph:
         return list(set(all_relations))
     
 
-    def print_related_edges(self, node):
-        related_edges = self.find_related_edges(node=node)
+    def print_related_edges_backward(self, node):
+        related_edges = self.find_related_edges_backward(node=node)
         self.__print_mermaid(related_edges)
