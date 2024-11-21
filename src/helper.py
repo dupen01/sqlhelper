@@ -273,7 +273,7 @@ class SqlHelper:
         was_merge = False
         was_using = False
         was_pre_table_name = False
-        target_table = None
+        target_table = []
         source_table = []
         result = {}
 
@@ -325,7 +325,7 @@ class SqlHelper:
                     continue
 
                 if token.upper() not in KeyWords.keywords and was_pre_insert:
-                    target_table = token
+                    target_table.append(token)
                     was_pre_insert = False
                     was_pre_from = False
                     continue
@@ -335,19 +335,20 @@ class SqlHelper:
                     and not was_using \
                     and token.upper() not in KeyWords.keywords \
                     and target_table is None:
-                    target_table = token
+                    target_table.append(token)
                     continue
 
                 if was_merge and was_using and token.upper() not in KeyWords.keywords:
                     if token != '(':
                         source_table.append(token)
-                        print('source_table:', token)
                     was_using = False
                     was_merge = False
                     continue
 
                 if was_pre_from:
-                    if token not in KeyWords.keywords and not was_pre_table_name and token not in (',', '('):
+                    if token not in KeyWords.keywords \
+                        and not was_pre_table_name \
+                            and token not in (',', '('):
                         source_table.append(token)
                         was_pre_from = True
                         was_pre_table_name = True
@@ -356,7 +357,6 @@ class SqlHelper:
                         was_pre_table_name = False
 
         mid_table = SqlHelper.get_cte_mid_tables(sql)
-        print(source_table)
         source_table = list(set(source_table) - set(mid_table))
         if len(source_table) != 0:
             result.setdefault('target_table', target_table)

@@ -31,6 +31,7 @@ update a= b
 """
 
 sql6 = """
+-- merge。。。。。。
 merge into dwd.t1 t1
 using (select * from t3) t2
 on 1=1
@@ -38,6 +39,19 @@ when matched then
 update a= b
 """
 
-rs = SqlHelper.get_source_target_tables(sql5)
+# todo: 暂未实现一个SQL内包含多个目标表的情况
+sql7 = """
+from ods_t1
+insert overwrite dwd_t1
+select a, b
+insert into dwd_t2
+select c, d
+"""
+
+sql8 = """
+
+"""
+
+rs = SqlHelper.get_source_target_tables(sql7)
 
 print(rs)
