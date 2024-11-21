@@ -52,6 +52,7 @@ class DagGraph:
 
 
     def __print_mermaid(self, edges: list) -> None:
+        edges = list(set(edges))
         print('graph LR')
         for _from, _to in edges:
             print(f"{_from} --> {_to}")
